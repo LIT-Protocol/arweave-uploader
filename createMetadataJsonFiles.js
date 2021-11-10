@@ -47,6 +47,26 @@ async function loadKeyFromFile(path) {
   }
 }
 
+function shuffle(array) {
+  var currentIndex = array.length,
+    randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
 async function main() {
   const allTxns = [];
 
@@ -66,40 +86,22 @@ async function main() {
     const tokenId = i + 1;
 
     console.log(`processing ${i + 1} of ${images.length}: ${image.filename}`);
-
+    const imageUrl = `https://arweave.net/${image.id}`;
+    const q = {
+      tokenId,
+      imageUrl,
+    };
     const metadata = {
       name: "Lit Genesis Gate",
       description:
         "To the owner of this NFT, congrats. You possess the key to a special portal. Behind this gate you'll find collaborative art, access to a private channel in the Lit Protocol discord, and other features and benefits for NFT owners.  Click on the NFT to enter!",
-      image: `https://arweave.net/${image.id}`,
-      animation_url: `https://litgateway.com/LitOgNft.html?tokenId=${tokenId}`,
+      image: imageUrl,
+      animation_url: `https://litgateway.com/LitOgNft.html?${new URLSearchParams(
+        q
+      ).toString()}`,
     };
 
     fs.writeFileSync(`./final/${tokenId}.json`, JSON.stringify(metadata));
-
-    // let data = fs.readFileSync(`${path}/${file}`);
-
-    // const ipfsCid = await getIpfsCid(data);
-
-    // let transaction = await arweave.createTransaction({ data }, key);
-    // transaction.addTag('Content-Type', 'application/json');
-    // transaction.addTag('IPFS-Add', ipfsCid);
-
-    // await arweave.transactions.sign(transaction, key);
-
-    // let uploader = await arweave.transactions.getUploader(transaction);
-
-    // while (!uploader.isComplete) {
-    //   await uploader.uploadChunk();
-    //   console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
-    // }
-
-    // console.log(transaction)
-
-    // allTxns.push({
-    //   id: transaction.id,
-    //   filename: file
-    // })
   }
 
   console.log("------------------------------");
